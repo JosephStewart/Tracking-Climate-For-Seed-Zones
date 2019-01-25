@@ -1,0 +1,12 @@
+name: CA_Seed_Zone_CC
+title: CA_Seed_Zone_CC
+username:
+account: stewartecology
+server: shinyapps.io
+hostUrl: https://api.shinyapps.io/v1
+appId: 652080
+bundleId: 1832345
+url: https://stewartecology.shinyapps.io/CA_Seed_Zone_CC/
+when: 1548267647.33761
+asMultiple: FALSE
+asStatic: FALSE
