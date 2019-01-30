@@ -27,6 +27,9 @@ seed_zones = readRDS("lib/seed zones disolve wgs84.RDS") # .03 seconds
 
 
 
+
+
+
 server <- function(input, output) {
   
   # create a reactive value that will store the click position
