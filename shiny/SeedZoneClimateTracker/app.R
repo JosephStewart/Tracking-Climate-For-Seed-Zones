@@ -24,6 +24,28 @@ seed_zones_el$label = paste0(seed_zones_el$SEED_ZONE, ", ", seed_zones_el$el_bnd
 
 
 ui = navbarPage("Seed Zone Climate Tracker",
+                tabPanel("Analog Climate Finder",
+                         fluidRow(
+                           column(width = 6,
+                                  h3("Target Climate"),
+                                  p("What is the target seed zone, elevation band, and climate scenario? (Where will the seeds be planted and what climate period/scenario should they be optimized for?)"),
+                                  selectInput('per_dest', "Climate Scenario", c("1981-2010","2009-2018","2010-2039 HDHE","2010-2039 HDLE", "2010-2039 WWHE", "2010-2039 WWLE", "2040-2069 HDHE", "2040-2069 HDLE", "2040-2069 WWHE", "2040-2069 WWLE", "2070-2099 HDHE", "2070-2099 HDLE", "2070-2099 WWHE", "2070-2099 WWLE"), selected = "2010-2039 HDHE"),
+                                  selectInput('seedzone', 'Seed zone', levels(clim_by_group$sz), selected = "526") ,
+                                  selectInput('el', 'Elevation', c("", as.character(unique(subset(clim_by_group, sz == "526")$el_bnd))))
+                           ),
+                           
+                           column(width = 6,
+                                  h3("Analog Climate"),
+                                  p("During what historical period are we searching for units with similar climate conditions? (What climate period are seeds adapted to?)"),
+                                  selectInput('per_source', 'Historical Period', c("1921-1950", "1951-1980", "1961-1970" ))
+                           )
+                         ),
+                         
+                         br(),
+                         p("Click on the map or use the dropdown menus to select a target seed zone and elevation band. Units with analogous climates (i.e. locations where seeds are likely to be adapted to the target climate) are shown in green and listed below."),
+                         leafletOutput("map", height="450px", width = "450px")
+                         , tableOutput("table")
+                ),
                 tabPanel("Climate Tracker",
                          h3("Tracking historical and future climate change for the seed zones of California"),
                          p("Seed zones have been in use in California since the 1940s. The currently used seed zone map was published in 1970. Currently seeds are transferred within within seed zones and 500 foot elevation bands. Given little other guidance, and a concern for changing climate conditions, land managers have been selecting seed lots from 500 feet lower elevation within a seed zone for reforestation projects, with the hope that the seeds from what is assumed warmer climate will be better adapted to the current and future climate of the higher elevation planting site. How well does this approach match changing climate conditions?"),
@@ -66,29 +88,7 @@ ui = navbarPage("Seed Zone Climate Tracker",
                            p("Information on climate scenarios: Hot and Dry, High Emission (HDHE) = MIROC-ESM RCP8.5; Hot and Dry, Low Emission (HDLE) = MIROC-ESM, RCP4.5; Warm and Wet, High Emission (WWHE) = CNRM-ESM, RCP8.5; Warm and Wet, Low Emission (WWLE) = CNRM-ESM, RCP4.5" )
                          )
                 )
-                ,
-                tabPanel("Analog Climate Finder",
-                         fluidRow(
-                           column(width = 6,
-                                  h3("Target Climate"),
-                                  p("What is the target seed zone, elevation band, and climate scenario? (Where will the seeds be planted and what climate period/scenario should they be optimized for?)"),
-                                  selectInput('per_dest', "Climate Scenario", c("1981-2010","2009-2018","2010-2039 HDHE","2010-2039 HDLE", "2010-2039 WWHE", "2010-2039 WWLE", "2040-2069 HDHE", "2040-2069 HDLE", "2040-2069 WWHE", "2040-2069 WWLE", "2070-2099 HDHE", "2070-2099 HDLE", "2070-2099 WWHE", "2070-2099 WWLE"), selected = "2010-2039 HDHE"),
-                                  selectInput('seedzone', 'Seed zone', levels(clim_by_group$sz), selected = "526") ,
-                                  selectInput('el', 'Elevation', c("", as.character(unique(subset(clim_by_group, sz == "526")$el_bnd))))
-                           ),
-
-                           column(width = 6,
-                                  h3("Analog Climate"),
-                                  p("During what historical period are we searching for units with similar climate conditions? (What climate period are seeds adapted to?)"),
-                                  selectInput('per_source', 'Historical Period', c("1921-1950", "1951-1980", "1961-1970" ))
-                           )
-                         ),
-
-                         br(),
-                         p("Click on the map or use the dropdown menus to select a target seed zone and elevation band. Units with analogous climates (i.e. locations where seeds are likely to be adapted to the target climate) are shown in green and listed below."),
-                         leafletOutput("map", height="450px", width = "450px")
-                         , tableOutput("table")
-                )
+               
 )
 
 server <- function(input, output, session) {
