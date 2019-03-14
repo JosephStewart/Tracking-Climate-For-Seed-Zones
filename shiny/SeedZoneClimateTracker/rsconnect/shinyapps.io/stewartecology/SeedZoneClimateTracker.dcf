@@ -1,0 +1,12 @@
+name: SeedZoneClimateTracker
+title: SeedZoneClimateTracker
+username:
+account: stewartecology
+server: shinyapps.io
+hostUrl: https://api.shinyapps.io/v1
+appId: 751884
+bundleId: 1907927
+url: https://stewartecology.shinyapps.io/SeedZoneClimateTracker/
+when: 1551402142.98255
+asMultiple: FALSE
+asStatic: FALSE

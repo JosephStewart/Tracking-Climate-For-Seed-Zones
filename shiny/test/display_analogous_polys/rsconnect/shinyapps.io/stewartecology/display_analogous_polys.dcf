@@ -1,0 +1,13 @@
+name: display_analogous_polys
+title: display_analogous_polys
+username:
+account: stewartecology
+server: shinyapps.io
+hostUrl: https://api.shinyapps.io/v1
+appId: 744001
+bundleId: 1904248
+url: https://stewartecology.shinyapps.io/display_analogous_polys/
+when: 1551293161.08107
+asMultiple: FALSE
+asStatic: FALSE
+ignoredFiles: lib/seed zones disolve wgs84.RDS

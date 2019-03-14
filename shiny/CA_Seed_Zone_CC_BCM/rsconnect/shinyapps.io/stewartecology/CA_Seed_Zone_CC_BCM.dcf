@@ -5,8 +5,9 @@ account: stewartecology
 server: shinyapps.io
 hostUrl: https://api.shinyapps.io/v1
 appId: 667589
-bundleId: 1844782
+bundleId: 1858113
 url: https://stewartecology.shinyapps.io/CA_Seed_Zone_CC_BCM/
-when: 1548807674.66666
+when: 1549399885.68526
 asMultiple: FALSE
 asStatic: FALSE
+ignoredFiles: old lib files
