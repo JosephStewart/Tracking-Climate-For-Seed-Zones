@@ -25,6 +25,8 @@ seed_zones_el$label = paste0(seed_zones_el$SEED_ZONE, ", ", seed_zones_el$el_bnd
 
 ui = navbarPage("Seed Zone Climate Tracker",
                 tabPanel("Analog Climate Finder",
+                         h3("Tracking historical and future climate change for the seed zones of California"),
+                         p("Current guidelines for seed transfer in California forestry are based on a system of seed zones and 500 foot elevation bands. Given little other guidance, and a concern for changing climate conditions, land managers have been selecting seed lots from 500 feet lower elevation within a seed zone for reforestation projects, with the hope that the seeds from what is assumed warmer climate will be better adapted to the current and future climate of the higher elevation planting site. How well does this approach match changing climate conditions?"),
                          fluidRow(
                            column(width = 6,
                                   h3("Target Climate"),
@@ -48,7 +50,7 @@ ui = navbarPage("Seed Zone Climate Tracker",
                 ),
                 tabPanel("Climate Tracker",
                          h3("Tracking historical and future climate change for the seed zones of California"),
-                         p("Seed zones have been in use in California since the 1940s. The currently used seed zone map was published in 1970. Currently seeds are transferred within within seed zones and 500 foot elevation bands. Given little other guidance, and a concern for changing climate conditions, land managers have been selecting seed lots from 500 feet lower elevation within a seed zone for reforestation projects, with the hope that the seeds from what is assumed warmer climate will be better adapted to the current and future climate of the higher elevation planting site. How well does this approach match changing climate conditions?"),
+                         p("Current guidelines for seed transfer in California forestry are based on a system of seed zones and 500 foot elevation bands. Given little other guidance, and a concern for changing climate conditions, land managers have been selecting seed lots from 500 feet lower elevation within a seed zone for reforestation projects, with the hope that the seeds from what is assumed warmer climate will be better adapted to the current and future climate of the higher elevation planting site. How well does this approach match changing climate conditions?"),
                          fluidRow(
                            plotlyOutput("plot", height="600px")
                          )
@@ -104,7 +106,7 @@ server <- function(input, output, session) {
     leaflet() %>% addTiles() %>%
       addPolygons(data = seed_zones, color = "#444444", weight = 1, smoothFactor = 0.5,
                   opacity = 1.0, fillOpacity = 0,
-                  popup=~SEED_ZONE, layerId= ~SEED_ZONE,
+                  popup=~SEED_ZONE, layerId= ~SEED_ZONE, label = ~SEED_ZONE, 
                   highlightOptions = highlightOptions(color = "black", weight = 3,
                                                       bringToFront = TRUE))
     
