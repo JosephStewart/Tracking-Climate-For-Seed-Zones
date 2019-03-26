@@ -46,7 +46,9 @@ ui = navbarPage("Seed Zone Climate Tracker",
                          br(),
                          p("Click on the map or use the dropdown menus to select a target seed zone and elevation band. Units with analogous climates (i.e. locations where seeds are likely to be adapted to the target climate) are shown in green and listed below."),
                          leafletOutput("map", height="450px", width = "450px")
-                         , tableOutput("table")
+                         , tableOutput("table"),
+                         br(),
+                         p("Information on climate scenarios: Hot and Dry, High Emission (HDHE) = MIROC-ESM RCP8.5; Hot and Dry, Low Emission (HDLE) = MIROC-ESM, RCP4.5; Warm and Wet, High Emission (WWHE) = CNRM-ESM, RCP8.5; Warm and Wet, Low Emission (WWLE) = CNRM-ESM, RCP4.5" )
                 ),
                 tabPanel("Climate Tracker",
                          h3("Tracking historical and future climate change for the seed zones of California"),
@@ -235,7 +237,7 @@ server <- function(input, output, session) {
     print(paste("input sz:", seedzone))
     target_unit = seed_zones_el[seed_zones_el$el_bnd == el & seed_zones_el$SEED_ZONE == seedzone,]
     print("target_unit 1.2")
-    if(length(target_unit))   target_unit$label = paste0("planting unit, ", target_unit$SEED_ZONE, ", ", target_unit$el_bnd)
+    if(length(target_unit))   target_unit$label = paste0(target_unit$SEED_ZONE, ", ", target_unit$el_bnd)
     print("target_unit 2")
     target_unit
   })
