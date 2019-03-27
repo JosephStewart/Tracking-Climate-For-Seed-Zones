@@ -6,6 +6,7 @@ library(rgdal)
 library(sp)
 library(ggplot2)
 library(plotly)
+library(leaflet.esri)
 
 # load for bcm climate tracker 
 data_long_mat = readRDS("lib/data_long_mat.RDS")
@@ -31,7 +32,7 @@ ui = navbarPage("Seed Zone Climate Tracker",
                            column(width = 6,
                                   h3("Target Climate"),
                                   p("What is the target seed zone, elevation band, and climate scenario? (Where will the seeds be planted and what climate period/scenario should they be optimized for?)"),
-                                  selectInput('per_dest', "Climate Scenario", c("1981-2010","2009-2018","2010-2039 HDHE","2010-2039 HDLE", "2010-2039 WWHE", "2010-2039 WWLE", "2040-2069 HDHE", "2040-2069 HDLE", "2040-2069 WWHE", "2040-2069 WWLE", "2070-2099 HDHE", "2070-2099 HDLE", "2070-2099 WWHE", "2070-2099 WWLE"), selected = "2010-2039 HDHE"),
+                                  selectInput('per_dest', "Climate Scenario", c("1981-2010", "2010-2039 ENS HE", "2010-2039 HD HE",  "2010-2039 WW HE",  "2040-2069 ENS HE", "2040-2069 HD HE", "2040-2069 WW HE",  "2070-2099 ENS HE", "2070-2099 HD HE",  "2070-2099 WW HE"), selected = "2010-2039 ENS HE"),
                                   selectInput('seedzone', 'Seed zone', levels(clim_by_group$sz), selected = "526") ,
                                   selectInput('el', 'Elevation', c("", as.character(unique(subset(clim_by_group, sz == "526")$el_bnd))))
                            ),
@@ -39,14 +40,29 @@ ui = navbarPage("Seed Zone Climate Tracker",
                            column(width = 6,
                                   h3("Analog Climate"),
                                   p("During what historical period are we searching for units with similar climate conditions? (What climate period are seeds adapted to?)"),
-                                  selectInput('per_source', 'Historical Period', c("1921-1950", "1951-1980", "1961-1970" ))
+                                  selectInput('per_source', 'Historical Period', c("1901-1930", "1941-1970")),
+                                  
+                                  # h3("Climate Variables"),
+                                  strong("What climate variables are we tracking?"),
+                                  checkboxGroupInput("clim_vars", label = NULL, 
+                                                     choices = list("Mean Annual Temperature" = "scaled_mat", "Mean Annual Precipitation" = "scaled_log_map", "Temperature Seasonality" = "scaled_td", "Photoperiod" = "scaled_lat"),
+                                                     selected = c("scaled_mat", "scaled_log_map", "scaled_td", "scaled_lat")),
+                                  sliderInput("max_dist", "Analog Climate Tolerance",
+                                              min = 0, max = 1, value = .25, step = .05
+                                  )
+                                  
+                                  
+                                  
+                                  
                            )
                          ),
                          
                          br(),
                          p("Click on the map or use the dropdown menus to select a target seed zone and elevation band. Units with analogous climates (i.e. locations where seeds are likely to be adapted to the target climate) are shown in green and listed below."),
-                         leafletOutput("map", height="450px", width = "450px")
-                         , tableOutput("table"),
+                         fluidRow(
+                           column(width = 8, leafletOutput("map", height="600px", width = "100%")),
+                           column(width = 4, tableOutput("table"))
+                         ),
                          br(),
                          p("Information on climate scenarios: Hot and Dry, High Emission (HDHE) = MIROC-ESM RCP8.5; Hot and Dry, Low Emission (HDLE) = MIROC-ESM, RCP4.5; Warm and Wet, High Emission (WWHE) = CNRM-ESM, RCP8.5; Warm and Wet, Low Emission (WWLE) = CNRM-ESM, RCP4.5" )
                 ),
@@ -256,51 +272,62 @@ server <- function(input, output, session) {
     matches()
   })
   
-  
+  # matching seed zones ####
   matches = reactive({
+    # seedzone = "732"
+    # per_dest = "2070-2099 HD HE"
+    # per_source = "1941-1970"
+    # el = "3000 — 3500ft"
+    
+    
     print("db matches 1")
+    print(input$clim_vars)
+    
+    clim_vars = input$clim_vars
     seedzone = input$seedzone
     per_dest = input$per_dest
     per_source = input$per_source
     req(input$el)
     el = input$el
+    max_dist = input$max_dist
     
-    clim_target = subset(clim_by_group, period == per_dest & el_bnd == el & sz == seedzone)[,c("scaled_mat","scaled_log_map")]
-    max_dist = .25
+    
+    clim_target = subset(clim_by_group, period == per_dest & el_bnd == el & sz == seedzone)[,c("scaled_mat","scaled_log_map", "scaled_td","scaled_lat")]
     clim_by_group_for_source_period <- subset(clim_by_group, period == per_source)
     mat_dif = clim_by_group_for_source_period$scaled_mat - clim_target$scaled_mat
     map_dif = clim_by_group_for_source_period$scaled_log_map - clim_target$scaled_log_map
+    td_dif = clim_by_group_for_source_period$scaled_td - clim_target$scaled_td
+    lat_dif = clim_by_group_for_source_period$scaled_lat - clim_target$scaled_lat
     
-    multi_var_dist = sqrt(mat_dif^2 + map_dif^2)
+    
+    
+
+
+    
+    multi_var_dist = sqrt(mat_dif^2 * "scaled_mat"%in% clim_vars + 
+                            map_dif^2 * "scaled_map"%in% clim_vars + 
+                            td_dif^2 * "scaled_td"%in% clim_vars +
+                            lat_dif^2 * "scaled_lat"%in% clim_vars)
+    
+    
+    
     
     matches = clim_by_group_for_source_period[multi_var_dist < max_dist, c(    "sz", "el_bnd") ]
     names(matches)[1] = "SEED_ZONE"
     # matches$match = T
+    print(matches)
     print("db matches 2")
     matches})
   
   
   
-  output$map <- renderLeaflet({
-    leaflet() %>% addTiles()  %>% setView(-119.509444, 37.229722,  zoom = 5) %>% 
-      addLegend("topright", 
-                colors =c("blue",  "green"),
-                labels= c("Target",  "Analog"),
-                # title= "",
-                opacity = .9)
-    
-    
-    #%>%
-    # addPolygons(data = sz_matches(), color = "#444444", weight = 1, smoothFactor = 0.5,
-    #             opacity = 1.0, fillOpacity = 0,
-    #             popup=~label, label= ~label,
-    #             highlightOptions = highlightOptions(color = "black", weight = 3, bringToFront = TRUE))
-  })
+
   
   
   # el.react = reactive(input$el)
   # 
   
+  # matching spatial polygons for seed zone matches
   sz_matches = reactive({
     print("sz_matches 1")
     matches = matches()
@@ -317,7 +344,18 @@ server <- function(input, output, session) {
     sz_matches
   })
   
-  
+  output$map <- renderLeaflet({
+    leaflet() %>% addTiles()  %>% setView(-119.509444, 37.229722,  zoom = 6) %>% 
+      addLegend("topright", 
+                colors =c("blue",  "green"),
+                labels= c("Target",  "Analog"),
+                # title= "",
+                opacity = .9)  %>% 
+      addProviderTiles("Esri", group="Relief") %>% 
+      addEsriBasemapLayer(key="Imagery", autoLabels=TRUE, group="Imagery") %>% 
+      addLayersControl(baseGroups = c( "Relief", "Imagery"))
+    
+  })
   
   observe({
     if(nrow(target_unit()) & nrow(sz_matches())){
@@ -330,16 +368,24 @@ server <- function(input, output, session) {
         addPolygons(data = target_unit(), color = "blue", weight = 1, smoothFactor = 0.5,
                     opacity = 1.0, fillOpacity = .5, fillColor = "blue",
                     popup=~label, label= ~label,
-                    highlightOptions = highlightOptions(color = "black", weight = 3, bringToFront = TRUE))
+                    highlightOptions = highlightOptions(color = "black", weight = 3, bringToFront = TRUE)) # %>% 
+        # addProviderTiles("Esri", group="Relief") %>% 
+        # addEsriBasemapLayer(key="Imagery", autoLabels=TRUE, group="Imagery") %>% 
+        # addLayersControl(baseGroups = c( "Relief", "Imagery"))
+      
     }
     
     if(length(target_unit()) & !length(sz_matches())){
       leafletProxy("map") %>%
+        addTiles("Terrain") %>%
         clearShapes() %>%
         addPolygons(data = target_unit(), color = "blue", weight = 1, smoothFactor = 0.5,
                     opacity = 1.0, fillOpacity = .5, fillColor = "blue",
                     popup=~label, label= ~label,
-                    highlightOptions = highlightOptions(color = "black", weight = 3, bringToFront = TRUE))
+                    highlightOptions = highlightOptions(color = "black", weight = 3, bringToFront = TRUE)) # %>% 
+        # addProviderTiles("Esri", group="Relief") %>% 
+        # addEsriBasemapLayer(key="Imagery", autoLabels=TRUE, group="Imagery") %>% 
+        # addLayersControl(baseGroups = c( "Relief", "Imagery"))
     }
     
   })

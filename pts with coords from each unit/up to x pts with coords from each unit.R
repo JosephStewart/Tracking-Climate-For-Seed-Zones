@@ -14,7 +14,7 @@ data$el_bnd_mx = ceiling_500(data$elev)
 # data$el_bnd = factor(data$el_bnd, levels = paste0(e -500, " — ", e, "ft"))
 
 data$elev_m = data$elev / 3.28084 # cover ft to meters
-data = data.table(data[,c("sz", "el_bnd_mx",  "x", "y", "elev_m")])
+data = data.table(data[,c("sz", "el_bnd_mx",  "x", "y", "elev_m",)])
 
 
 data = subset(data, !is.na(sz)  & ! is.na(el_bnd_mx))
