@@ -27,7 +27,7 @@ seed_zones_el$label = paste0(seed_zones_el$SEED_ZONE, ", ", seed_zones_el$el_bnd
 ui = navbarPage("Seed Zone Climate Tracker",
                 tabPanel("Analog Climate Finder",
                          h3("Tracking historical and future climate change for the seed zones of California"),
-                         p("Current guidelines for seed transfer in California forestry are based on a system of seed zones and 500 foot elevation bands. Given little other guidance, and a concern for changing climate conditions, land managers have been selecting seed lots from 500 feet lower elevation within a seed zone for reforestation projects, with the hope that the seeds from what is assumed warmer climate will be better adapted to the current and future climate of the higher elevation planting site. How well does this approach match changing climate conditions?"),
+                         p("Current guidelines for seed transfer in California forestry are based on a system of seed zones and 500-ft elevation bands. Given little other guidance, and a concern for changing climate conditions, land managers have been selecting seeds from 500 ft lower elevation within a seed zone for reforestation projects, with the hope that the seeds from what is assumed warmer climate will be better adapted to the current and future climate of the higher elevation planting site. How well does this approach match changing climate conditions?"),
                          fluidRow(
                            column(width = 6,
                                   h3("Target Climate"),
@@ -50,10 +50,6 @@ ui = navbarPage("Seed Zone Climate Tracker",
                                   sliderInput("max_dist", "Analog Climate Tolerance",
                                               min = 0, max = 1, value = .25, step = .05
                                   )
-                                  
-                                  
-                                  
-                                  
                            )
                          ),
                          
@@ -64,11 +60,11 @@ ui = navbarPage("Seed Zone Climate Tracker",
                            column(width = 4, tableOutput("table"))
                          ),
                          br(),
-                         p("Information on climate scenarios: Hot and Dry, High Emission (HDHE) = MIROC-ESM RCP8.5; Hot and Dry, Low Emission (HDLE) = MIROC-ESM, RCP4.5; Warm and Wet, High Emission (WWHE) = CNRM-ESM, RCP8.5; Warm and Wet, Low Emission (WWLE) = CNRM-ESM, RCP4.5" )
+                         p("Information on climate scenarios: Ensemble, High Emission (ENS HE) = Ensemble RCP8.5; Hot and Dry, High Emission (HD HE) = MIROC-ESM RCP8.5; Hot and Dry, Low Emission (HD LE) = MIROC-ESM, RCP4.5; Warm and Wet, High Emission (WW HE) = CNRM-ESM, RCP8.5; Warm and Wet, Low Emission (WW LE) = CNRM-ESM, RCP4.5" )
                 ),
                 tabPanel("Climate Tracker",
                          h3("Tracking historical and future climate change for the seed zones of California"),
-                         p("Current guidelines for seed transfer in California forestry are based on a system of seed zones and 500 foot elevation bands. Given little other guidance, and a concern for changing climate conditions, land managers have been selecting seed lots from 500 feet lower elevation within a seed zone for reforestation projects, with the hope that the seeds from what is assumed warmer climate will be better adapted to the current and future climate of the higher elevation planting site. How well does this approach match changing climate conditions?"),
+                         p("Current guidelines for seed transfer in California forestry are based on a system of seed zones and 500-ft elevation bands. Given little other guidance, and a concern for changing climate conditions, land managers have been selecting seeds from 500 ft lower elevation within a seed zone for reforestation projects, with the hope that the seeds from what is assumed warmer climate will be better adapted to the current and future climate of the higher elevation planting site. How well does this approach match changing climate conditions?"),
                          fluidRow(
                            plotlyOutput("plot", height="600px")
                          )
@@ -184,6 +180,8 @@ server <- function(input, output, session) {
     
     fut_time_periods = c("2010-2039", "2040-2069", "2070-2099")[c(input$t2010.2039, input$t2040.2069, input$t2070.2099)]
     
+    cols = c("#70C6AB", "#FC8D63", "#C8D1E6", "#E78AC3", "#ACDA60", "#FFD830", "#E7C79B", "#B8B8B8")[c(input$t1921.1950, input$t1951.1980, input$t1981.2010, input$t1961.1970, input$t2009.2018, input$t2010.2039, input$t2040.2069, input$t2070.2099)]
+    
     scenario = c("HDHE","HDLE", "WWHE", "WWLE") [match(input$scenario , c("Hot and Dry, High Emission (HDHE)", "Hot and Dry, Low Emission (HDLE)", "Warm and Wet, High Emission (WWHE)", "Warm and Wet, Low Emission (WWLE)" ) )]
     
     fut_time_periods = paste(fut_time_periods, scenario)
@@ -191,13 +189,12 @@ server <- function(input, output, session) {
     # time_periods =  c("1981-2010","2010-2039 HDHE")
     d = data_long[data_long$period %in% time_periods,]
     
-    
     # seed zone
     sz = data_of_click$clickedShape$id
     if(is.null(sz)) sz = 526 # set default seed zone
     d = d[d$sz == sz,]
     str(d)
-    plot_ly(d, x = ~el_bnd, y = ~mat, color = ~period, type = "box") %>%
+    plot_ly(d, x = ~el_bnd, y = ~mat, color = ~period, type = "box", colors = cols) %>%
       layout(boxmode = "group", title = paste("Seed Zone", sz), xaxis = list(title = "elevation"), yaxis = list(title = plot_title))
   })
   
