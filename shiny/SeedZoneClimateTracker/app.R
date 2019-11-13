@@ -213,8 +213,10 @@ server <- function(input, output, session) {
     projection(coords) = "+proj=longlat +datum=WGS84 +no_defs +ellps=WGS84 +towgs84=0,0,0"
     clicked_unit = coords %over% seed_zones_el
     sz_clicked = as.character(clicked_unit$SEED_ZONE)
+    print(paste("sz_clicked", sz_clicked))
     updateSelectInput(session, 'seedzone', selected = sz_clicked)
     el_clicked = as.character(clicked_unit$el_bnd)
+    print(paste("el_clicked", el_clicked))
     el_sz = unique(seed_zones_el$el_bnd[seed_zones_el$SEED_ZONE == sz_clicked])
     updateSelectInput(session, 'el',  choices = el_sz, selected = el_clicked)
     leafletProxy("map") %>%

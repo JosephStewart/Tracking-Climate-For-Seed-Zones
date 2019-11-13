@@ -119,7 +119,11 @@ clim_by_group2 = data %>%
             scaled_lat =  median(Latitude)/lat_sd
   )
 
-clim_by_group2$sz = factor(clim_by_group2$sz)
+library(stringr)
+
+
+
+clim_by_group2$sz = factor(str_pad(clim_by_group2$sz, 3, pad = "0"))
 # clim_by_group2$period = factor(clim_by_group2$period)
 # clim_by_group = readRDS("/Users/joaaelst/Dropbox/SeedTransferProject/Tracking Climate For Seed Zones/shiny/SeedZoneClimateTracker/lib/clim_by_group.RDS")
 # 
