@@ -13,7 +13,7 @@ data_long_mat = readRDS("lib/data_long_mat.RDS")
 data_long_map = readRDS("lib/data_long_map.RDS")
 data_long_aet = readRDS("lib/data_long_aet.RDS")
 data_long_cwd = readRDS("lib/data_long_cwd.RDS")
-seed_zones = readRDS("lib/seed zones disolve wgs84.RDS") # .03 seconds
+seed_zones    = readRDS("lib/seed zones disolve wgs84.RDS") # .03 seconds
 
 # load for analog climate matcher
 library(shiny);library(tidyverse);library(sp);library(leaflet)
@@ -279,8 +279,8 @@ server <- function(input, output, session) {
     
     print("db matches 1")
     print(input$clim_vars)
-    
     clim_vars = input$clim_vars
+    print(clim_vars)
     seedzone = input$seedzone
     per_dest = input$per_dest
     per_source = input$per_source
@@ -290,24 +290,22 @@ server <- function(input, output, session) {
     
     
     clim_target = subset(clim_by_group, period == per_dest & el_bnd == el & sz == seedzone)[,c("scaled_mat","scaled_log_map", "scaled_td","scaled_lat")]
+    # print("clim_target:")
+    # print(clim_target)
     clim_by_group_for_source_period <- subset(clim_by_group, period == per_source)
     mat_dif = clim_by_group_for_source_period$scaled_mat - clim_target$scaled_mat
     map_dif = clim_by_group_for_source_period$scaled_log_map - clim_target$scaled_log_map
     td_dif = clim_by_group_for_source_period$scaled_td - clim_target$scaled_td
     lat_dif = clim_by_group_for_source_period$scaled_lat - clim_target$scaled_lat
-    
-    
-    
-
-
+    # print("mat_dif:")
+    # print(mat_dif)
+    # print("map_dif:")
+    # print(map_dif)
     
     multi_var_dist = sqrt(mat_dif^2 * "scaled_mat"%in% clim_vars + 
-                            map_dif^2 * "scaled_map"%in% clim_vars + 
+                            map_dif^2 * "scaled_log_map"%in% clim_vars + 
                             td_dif^2 * "scaled_td"%in% clim_vars +
                             lat_dif^2 * "scaled_lat"%in% clim_vars)
-    
-    
-    
     
     matches = clim_by_group_for_source_period[multi_var_dist < max_dist, c(    "sz", "el_bnd") ]
     names(matches)[1] = "SEED_ZONE"
@@ -316,9 +314,6 @@ server <- function(input, output, session) {
     print("db matches 2")
     matches})
   
-  
-  
-
   
   
   # el.react = reactive(input$el)

@@ -5,8 +5,9 @@ account: stewartecology
 server: shinyapps.io
 hostUrl: https://api.shinyapps.io/v1
 appId: 751884
-bundleId: 1969173
+bundleId: 2039414
 url: https://stewartecology.shinyapps.io/SeedZoneClimateTracker/
-when: 1553717246.39041
+when: 1556222503.75879
 asMultiple: FALSE
 asStatic: FALSE
+ignoredFiles: Read me_holes in seed zone elevation map.R
